@@ -1,0 +1,331 @@
+version: 2
+
+models:
+  - name: dim_geolocation_sellers
+    description: "Dimensional table containing geolocation data for sellers."
+    columns:
+      - name: seller_id
+        data_type: string
+        description: "Unique identifier for the seller."
+        tests:
+          - not_null
+          - unique
+
+      - name: zip_code_prefix
+        data_type: int64
+        description: "Postal code prefix of the seller's location."
+        tests:
+          - not_null
+
+      - name: geolocation_lat
+        data_type: bignumeric
+        description: "Latitude coordinate of the seller's location."
+
+      - name: geolocation_lng
+        data_type: bignumeric
+        description: "Longitude coordinate of the seller's location."
+
+      - name: seller_state
+        data_type: string
+        description: "State where the seller is located."
+
+  - name: dim_marketing_funnel
+    description: "Dimensional table capturing marketing funnel data for potential sellers."
+    columns:
+      - name: mql_id
+        data_type: string
+        description: "Unique identifier for the Marketing Qualified Lead (MQL)."
+        tests:
+          - not_null
+          - unique
+
+      - name: seller_id
+        data_type: string
+        description: "Unique identifier for the seller who progressed through the marketing funnel."
+        tests:
+          - not_null
+          - unique
+
+      - name: first_contact_date
+        data_type: timestamp
+        description: "Date when the seller was first contacted as part of the marketing funnel."
+
+      - name: seller_approved_date
+        data_type: timestamp
+        description: "Date when the seller was approved to join the platform."
+
+      - name: business_segment
+        data_type: string
+        description: "Business category or segment the seller operates in."
+
+      - name: lead_type
+        data_type: string
+        description: "Type of lead (e.g., organic, paid, referral)."
+
+      - name: has_company
+        data_type: string
+        description: "Indicates whether the seller has a registered company (Yes/No)."
+
+      - name: has_gtin
+        data_type: string
+        description: "Indicates whether the seller's products have GTIN (Global Trade Item Number) codes (Yes/No)."
+
+      - name: origin
+        data_type: string
+        description: "Source of the lead (e.g., campaign, referral, direct signup)."
+
+  - name: dim_sellers_profile
+    description: "Dimensional table containing detailed profiles of approved sellers."
+    columns:
+      - name: seller_id
+        data_type: string
+        description: "Unique identifier for the seller."
+        tests:
+          - not_null
+          - unique
+
+      - name: first_contact_date
+        data_type: timestamp
+        description: "Date when the seller was first contacted by the platform."
+
+      - name: seller_approved_date
+        data_type: timestamp
+        description: "Date when the seller was approved and onboarded onto the platform."
+
+      - name: business_segment
+        data_type: string
+        description: "Category of business the seller operates in."
+
+      - name: lead_type
+        data_type: string
+        description: "Classification of how the seller was acquired as a lead."
+
+      - name: zip_code_prefix
+        data_type: int64
+        description: "Postal code prefix of the seller's business location."
+
+      - name: geolocation_lat
+        data_type: bignumeric
+        description: "Latitude coordinate of the seller's location."
+
+      - name: geolocation_lng
+        data_type: bignumeric
+        description: "Longitude coordinate of the seller's location."
+
+      - name: seller_state
+        data_type: string
+        description: "State where the seller is registered."
+
+      - name: has_company
+        data_type: string
+        description: "Indicates whether the seller has a legally registered company (Yes/No)."
+
+      - name: has_gtin
+        data_type: string
+        description: "Indicates whether the seller uses GTIN codes for their products (Yes/No)."
+
+      - name: origin
+        data_type: string
+        description: "Source channel from which the seller was acquired."
+
+  - name: dim_geolocation_customers
+    description: "Dimensional table containing geolocation data of customers, including their state and zip code prefix."
+    columns:
+      - name: customer_id
+        data_type: string
+        description: "Unique identifier for each customer, used to track customer-related transactions."
+        tests:
+          - unique
+          - not_null
+
+      - name: zip_code_prefix
+        data_type: int64
+        description: "The first five digits of the customer's postal code, used for geographical mapping."
+
+      - name: geolocation_lat
+        data_type: bignumeric
+        description: "Latitude coordinate representing the approximate location of the customer's address."
+
+      - name: geolocation_lng
+        data_type: bignumeric
+        description: "Longitude coordinate representing the approximate location of the customer's address."
+
+      - name: customer_state
+        data_type: string
+        description: "State or federal unit where the customer is located, represented using the Brazilian state abbreviations (e.g., SP, RJ, MG)."
+
+  - name: dim_orders_details
+    description: "Dimensional table containing detailed information about orders, including seller, product, customer, and order status."
+    columns:
+      - name: seller_id
+        data_type: string
+        description: "Unique identifier for the seller associated with the order."
+
+      - name: product_id
+        data_type: string
+        description: "Unique identifier for the product included in the order."
+
+      - name: customer_id
+        data_type: string
+        description: "Unique identifier for the customer who placed the order."
+
+      - name: order_id
+        data_type: string
+        description: "Unique identifier for the order, used to track transactions."
+
+      - name: product_category
+        data_type: string
+        description: "The category to which the product belongs, used for classification and analysis."
+
+      - name: total_order_items
+        data_type: int64
+        description: "Total number of items in the order, representing the quantity of purchased products."
+
+      - name: order_status
+        data_type: string
+        description: "Current status of the order, such as 'delivered', 'canceled', 'shipped', etc."
+
+      - name: order_delivered_carrier_date
+        data_type: timestamp
+        description: "Timestamp indicating when the order was handed over to the carrier for delivery."
+
+      - name: order_delivered_customer_date
+        data_type: timestamp
+        description: "Timestamp indicating when the order was successfully delivered to the customer."
+
+      - name: shipping_limit_date
+        data_type: timestamp
+        description: "The deadline by which the seller must dispatch the order to avoid penalties."
+
+      - name: total_payment
+        data_type: float64
+        description: "Total amount paid by the customer for the order, including product cost and shipping."
+
+      - name: review_score
+        data_type: int64
+        description: "Customer's rating for the order, ranging from 1 (lowest) to 5 (highest)."
+
+  - name: facts_orders_customer
+    description: "Fact table containing aggregated information about customer orders, including seller, order details, and financial metrics."
+    columns:
+      - name: seller_id
+        data_type: string
+        description: "Unique identifier for the seller associated with the order."
+
+      - name: order_id
+        data_type: string
+        description: "Unique identifier for the order, used to track transactions."
+
+      - name: customer_id
+        data_type: string
+        description: "Unique identifier for the customer who placed the order."
+
+      - name: total_order_items
+        data_type: int64
+        description: "Total number of items in the order, representing the quantity of purchased products."
+
+      - name: order_status
+        data_type: string
+        description: "Current status of the order, such as 'delivered', 'canceled', or 'shipped'."
+
+      - name: total_order_value
+        data_type: float64
+        description: "Total value of the order, calculated as the sum of all item prices in the order."
+
+      - name: total_freight_value
+        data_type: float64
+        description: "Total shipping cost for the order, paid by the customer."
+
+      - name: total_payment
+        data_type: float64
+        description: "Total amount paid by the customer, including product cost and shipping fees."
+
+  - name: marts_sold_products
+    description: "A mart table containing aggregated information about sold products, including revenue and product dimensions."
+    columns:
+      - name: product_id
+        data_type: string
+        description: "Unique identifier for the product."
+
+      - name: product_category_name
+        data_type: string
+        description: "Category name of the product, representing its classification."
+
+      - name: total_sold_products
+        data_type: int64
+        description: "Total quantity of this product sold across all orders."
+
+      - name: total_revenue
+        data_type: float64
+        description: "Total revenue generated from the sales of this product."
+
+      - name: product_weight
+        data_type: int64
+        description: "Weight of the product in grams."
+
+      - name: product_length
+        data_type: int64
+        description: "Length of the product in centimeters."
+
+      - name: product_height
+        data_type: int64
+        description: "Height of the product in centimeters."
+
+      - name: product_width
+        data_type: int64
+        description: "Width of the product in centimeters."
+
+  - name: marts_geolocation_olist
+    description: "A mart table that provides geolocation details of both sellers and customers, along with order-related information."
+    columns:
+      - name: seller_id
+        data_type: string
+        description: "Unique identifier for the seller associated with the order."
+
+      - name: order_id
+        data_type: string
+        description: "Unique identifier for the order, used to track transactions."
+
+      - name: customer_id
+        data_type: string
+        description: "Unique identifier for the customer who placed the order."
+
+      - name: total_order_items
+        data_type: int64
+        description: "Total number of items in the order, representing the quantity of purchased products."
+
+      - name: order_status
+        data_type: string
+        description: "Current status of the order, such as 'delivered', 'canceled', or 'shipped'."
+
+      - name: seller_zip_code_prefix
+        data_type: int64
+        description: "Zip code prefix of the seller's registered address."
+
+      - name: seller_geolocation_lat
+        data_type: bignumeric
+        description: "Latitude coordinate of the seller's location."
+
+      - name: seller_geolocation_lng
+        data_type: bignumeric
+        description: "Longitude coordinate of the seller's location."
+
+      - name: cust_zip_code_prefix
+        data_type: int64
+        description: "Zip code prefix of the customer's registered address."
+
+      - name: cust_geolocation_lat
+        data_type: bignumeric
+        description: "Latitude coordinate of the customer's location."
+
+      - name: cust_geolocation_lng
+        data_type: bignumeric
+        description: "Longitude coordinate of the customer's location."
+
+      - name: seller_state
+        data_type: string
+        description: "State where the seller is located."
+
+      - name: customer_state
+        data_type: string
+        description: "State where the customer is located."
