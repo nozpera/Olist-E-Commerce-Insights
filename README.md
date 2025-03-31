@@ -166,4 +166,37 @@ In this stage, the raw dataset stored in Google Cloud Storage (GCS) is loaded in
 
 Note: By following this structured workflow, the data loading process remains scalable, efficient, and optimized for large datasets. 🚀
 
+**5. Data Transformation with dbt**
+
+After loading the raw dataset into BigQuery, the next step is to perform data transformation using dbt (Data Build Tool). This step ensures that the data is cleaned, structured, and optimized for analysis.
+![8](https://github.com/user-attachments/assets/4513d2dc-5eca-4595-92d2-a045cdba53c0)
+
+*Step 1: Creating Dimensional and Fact Tables*
+  - The transformation process follows a dimensional modeling approach, separating dimension tables (e.g., dim_orders_details, dim_geolocation_customers) and fact tables (e.g., facts_orders_customer).
+  - Key transformations include:
+    - Aggregating total orders and revenue.
+    - Joining multiple datasets (orders, payments, sellers, customers).
+    - Extracting and standardizing product categories.
+
+*Step 2: Data Cleaning and Standardization*
+  - Product category names are cleaned and formatted using a custom dbt macro to ensure consistency (e.g., converting construction_tools_safety to Construction Tools Safety).
+  - Payment types are categorized using a dbt macro (get_payment_type.sql).
+  - Order statuses and shipping details are validated to ensure accurate reporting.
+
+*Step 3: Filtering Data for Marketing Funnel Analysis*
+  - Since the marketing funnel dataset covers only June 1, 2017 – June 1, 2018, the analysis filters relevant orders and sellers from this period.
+  - The number of sellers who passed the consultant stage (SR) is identified and linked with total orders and customers.
+
+*Step 4: Materializing Data Models*
+  - dbt models are incrementally updated to optimize query performance.
+  - Final models include:
+    - Marts tables (marts_sold_products, marts_geolocation_olist) for aggregated insights.
+    - Time series transformations for trend analysis.
+    - Order status percentage calculations for visualization.
+
+By leveraging dbt, the data pipeline remains scalable, modular, and efficient, ensuring high-quality data for downstream analytics and visualization. 🚀
+
+
+
+
 
