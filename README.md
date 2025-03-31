@@ -196,7 +196,38 @@ After loading the raw dataset into BigQuery, the next step is to perform data tr
 
 By leveraging dbt, the data pipeline remains scalable, modular, and efficient, ensuring high-quality data for downstream analytics and visualization. 🚀
 
+## Visualization
 
+Once the data has been successfully transformed and stored in BigQuery, the next step is to visualize insights using Looker Studio. The key objectives of this visualization phase are:
+1. Connecting to BigQuery
+   - Set up a connection between Looker Studio and the processed tables in BigQuery.
+   - Ensure that key fact and dimension tables are properly structured for reporting.
+2. Building Dashboards & Reports
+   - Top 5 Popular Product Categories: A tabular or ranking table showing the most purchased product categories from 2016 to 2018.
+   - Total Revenue Analysis: A horizontal bar chart displaying revenue trends across the three years.
+   - Seller Performance in Marketing Funnel: A dashboard showing the number of sellers who passed the consultant stage (SR) and their corresponding sales data.
+   - Order Status Distribution: A pie chart or stacked bar chart visualizing the percentage breakdown of order statuses.
+   - Time-Series Order Trends: A line chart representing order trends over time, highlighting seasonality and sales peaks.
+   - Geographical Customer & Seller Distribution: A map visualization displaying customer and seller locations, helping to understand regional sales performance.
+3. Customizing Reports
+   - Rename columns to user-friendly names for better readability
+   - Optimize dashboard performance by using pre-aggregated tables in BigQuery to reduce query execution time.
+4. Sharing & Monitoring
+   - Publish the dashboard and share it with stakeholders.
+   - Schedule automated report updates to reflect the latest data.
 
+This visualization step ensures that the insights derived from the data pipeline are effectively communicated to decision-makers, enabling data-driven strategies for business growth.
 
+Here are the link for the visualization in looker studio: [Olist E-Commerce Dashboard](https://lookerstudio.google.com/u/0/reporting/d3977873-f684-4598-bf51-13efc79edd9a/page/qlD)
 
+**Snapshots dashboard**
+![9](https://github.com/user-attachments/assets/2a1004c1-823a-4383-9a2e-c9575525385a)
+
+## Conclusion & Acknowledgment
+This project has been an incredible journey in building a scalable and efficient end-to-end data pipeline, from data ingestion to transformation and visualization. By leveraging BigQuery, dbt, Apache Spark, Kestra, and Looker Studio, I was able to gain hands-on experience in modern data engineering workflows, enabling deeper insights into e-commerce sales performance.
+
+I would like to express my sincere gratitude to DataTalks.Club and Alexey Grigorev for providing an outstanding learning platform through the Data Engineering Zoomcamp. Their guidance and resources have been instrumental in helping me develop the skills needed to design and implement real-world data solutions.
+
+This project is just the beginning, and I look forward to continuously improving and exploring new challenges in the data engineering field. 🚀
+
+Thank you! 🙌
