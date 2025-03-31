@@ -11,7 +11,7 @@
 3. [Tech Stack](#tech-stack)
 4. [Prerequisites](#prerequisites)
 5. [Datasets](#datasets)
-6. [Usage](#usage)
+6. [Main Process](#main-process)
 7. [Visualization](#visualization)
 
 ## Problem Statement
@@ -100,5 +100,70 @@ Additionally, make sure you have:
 
 - Main Datasets: [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
 - Marketing Funnel Datasets: [Marketing Funnel Datasets](https://www.kaggle.com/datasets/olistbr/marketing-funnel-olist)
+
+## Main Process
+
+**1. Setting Up Kestra Workflow Orchestration**
+
+The first step in the pipeline is to install and run Kestra for workflow orchestration using Docker. This is done as follows:
+
+  - Navigate to the **kestra** directory, where the Kestra Docker Compose configuration is located.
+  - Run the following command to build and start Kestra:
+    ```sh
+    docker-compose up
+    ```
+  - Once the setup is complete, Kestra can be accessed via **localhost:8080** in a web browser.
+    ![Capture](https://github.com/user-attachments/assets/087c0b6a-7fa5-43da-8e69-a1e682b09ca0)
+
+**2. Setting Up Google Cloud Platform (GCP) in Kestra**
+
+Next, we configure Google Cloud Storage (GCS) and BigQuery in Kestra to facilitate data storage and processing.
+
+  - First, copy the contents of your GCP credentials JSON file and store them as a key-value pair in Kestra.
+    ![Capture 3](https://github.com/user-attachments/assets/b1a557e6-5a6e-4311-8166-534029f80008)
+
+  - Then, create a new flow under the designated namespace for this project with the ID gcp_kv.
+  - The YAML configuration for this step is available in:
+    ```sh
+    kestra/flows/gcp_kv.yml
+    ```
+
+**3. Creating GCS Buckets & BigQuery Dataset + Raw Data Extraction**
+
+Once GCP is set up in Kestra, the next step is to create:
+
+- A Google Cloud Storage (GCS) bucket to serve as a data lake.
+  ![Capture 4](https://github.com/user-attachments/assets/3d141678-a12d-43f0-b61b-c5e520b9414e)
+
+- A BigQuery dataset to store structured data for analysis.
+
+The project-1.yml file in the Kestra directory handles:
+
+1. GCP setup (creating the necessary storage & database resources).
+2. Extracting raw datasets and uploading them to GCS for further processing.
+   ![6](https://github.com/user-attachments/assets/9655cade-dd97-491b-a675-c0dce1c89010)
+
+**4. Loading Raw Dataset from GCS (Data Lake) to BigQuery (Data Warehouse)**
+
+In this stage, the raw dataset stored in Google Cloud Storage (GCS) is loaded into BigQuery using a Python script. The script leverages Apache Spark, Apache Arrow, and DLT, each playing a crucial role in optimizing data ingestion. The workflow follows these steps:
+
+![7](https://github.com/user-attachments/assets/d2cd2a07-c23f-4b2c-8cd0-2aeeb023e3d1)
+
+*Step 1: Batch Processing with Apache Spark*
+  - Apache Spark is used for efficient batch processing.
+  - The raw dataset is repartitioned to ensure parallel execution and optimal resource utilization.
+  - A fixed schema is defined at the beginning to enforce data consistency before ingestion into BigQuery.
+
+*Step 2: Optimized Parquet Processing with Apache Arrow*
+  - The partitioned Spark DataFrame is written as multiple Parquet files.
+  - Apache Arrow merges these partitioned Parquet files into a single optimized Parquet file.
+  - This step improves query performance and reduces storage overhead.
+
+*Step 3: Efficient Data Loading with DLT*
+  - The merged Parquet file is then passed to DLT (Data Loading Tool).
+  - DLT ensures optimized ingestion into BigQuery by handling schema mapping and efficient bulk loading.
+  - This step significantly enhances the performance and reliability of the ELT pipeline.
+
+Note: By following this structured workflow, the data loading process remains scalable, efficient, and optimized for large datasets. 🚀
 
 
