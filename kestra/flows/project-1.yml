@@ -1,0 +1,77 @@
+id: project-1
+namespace: nozpera-project
+
+inputs:
+  - id: url_dataset
+    type: STRING
+    displayName: URL Dataset
+
+  - id: olist
+    type: SELECT
+    displayName: Select Olist Dataset Type
+    values: [customers, geolocation, order, orders, products, sellers]
+    allowCustomValue: true
+
+  - id: order_specific_dataset
+    type: SELECT
+    displayName: Select Order Specific Dataset Type
+    values: [items, payments, reviews]
+    dependsOn:
+      inputs:
+        - olist
+      condition: "{{ inputs.olist == 'order' }}"
+
+variables:
+  file: >
+    {% if ['customers', 'geolocation', 'order', 'orders', 'products', 'sellers'] contains inputs.olist %}
+      olist_{{ inputs.olist }}_dataset.csv
+    {% elseif inputs.olist == "order" %}
+      olist_{{ inputs.olist }}_{{ inputs.order_specific_dataset }}_dataset.csv
+    {% else %}
+      {{ inputs.olist }}.csv
+    {% endif %}
+  gcs: "gs://{{kv('GCP_BUCKET_NAME')}}/{{render(vars.file) | trim}}"
+  data: "{{outputs.unzip_file.files[render(vars.file) | trim]}}"
+
+tasks:
+  - id: create_gcs_bucket
+    type: io.kestra.plugin.gcp.gcs.CreateBucket
+    ifExists: SKIP
+    storageClass: STANDARD
+    name: "{{kv('GCP_BUCKET_NAME')}}"
+
+  - id: create_bq_dataset
+    type: io.kestra.plugin.gcp.bigquery.CreateDataset
+    name: "{{kv('GCP_DATASET')}}"
+    ifExists: SKIP
+
+  - id: set_label_file
+    type: io.kestra.plugin.core.execution.Labels
+    labels:
+      file: "{{render(vars.file) | trim}}"
+
+  - id: extract_file
+    type: io.kestra.plugin.core.http.Download
+    uri: "{{ inputs.url_dataset }}"
+
+  - id: unzip_file
+    type: io.kestra.plugin.compress.ArchiveDecompress
+    algorithm: ZIP
+    from: "{{ outputs.extract_file.uri }}"
+
+  - id: upload_to_gcs_file
+    type: io.kestra.plugin.gcp.gcs.Upload
+    from: "{{render(vars.data)}}"
+    to: "{{render(vars.gcs)}}"
+
+  - id: purge_files
+    type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+    description: To avoid cluttering your storage, we will remove the downloaded files
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{kv('GCP_CREDS')}}"
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"
